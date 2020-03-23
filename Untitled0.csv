@@ -1,0 +1,184 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "name": "Untitled0.ipynb",
+      "provenance": [],
+      "collapsed_sections": [],
+      "authorship_tag": "ABX9TyOSNBV50o2gNatawR/OTz+V",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/Rainitypedia/Chainsaw/blob/master/Untitled0.csv\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "n5dJQYdX1Tbp",
+        "colab_type": "code",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 144
+        },
+        "outputId": "b461238a-a4bf-41d0-9b56-97bb64dcd85e"
+      },
+      "source": [
+        "! git clone https://github.com/Rainitypedia/Chainsaw.git\n",
+        "! ls"
+      ],
+      "execution_count": 1,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "text": [
+            "Cloning into 'Chainsaw'...\n",
+            "remote: Enumerating objects: 7, done.\u001b[K\n",
+            "remote: Counting objects: 100% (7/7), done.\u001b[K\n",
+            "remote: Compressing objects: 100% (7/7), done.\u001b[K\n",
+            "remote: Total 7 (delta 0), reused 0 (delta 0), pack-reused 0\u001b[K\n",
+            "Unpacking objects: 100% (7/7), done.\n",
+            "Chainsaw  sample_data\n"
+          ],
+          "name": "stdout"
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "jG7ixGD-3WZg",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "source": [
+        "from glob import glob\n",
+        "norm_data_dir = '/Chainsaw'\n",
+        "norm_audio_files = glob(norm_data_dir + '*.mp3')"
+      ],
+      "execution_count": 0,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "cCSr5iTY4Vkz",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "source": [
+        "norm_audios_feat = []\n",
+        "for file in norm_audio_files:\n",
+        "   y , sr = librosa.load(file,sr=None)\n",
+        "   feature_vector = get_feature_vector(y, sr)\n",
+        "   norm_audios_feat.append(feature_vector)"
+      ],
+      "execution_count": 0,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "tdE-9D4m4zWF",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "source": [
+        "import librosa\n",
+        "from librosa import feature\n",
+        "import numpy as np"
+      ],
+      "execution_count": 0,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "7rKh_4NA43la",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "source": [
+        "fn_list_i = [ feature.chroma_stft,\n",
+        " feature.spectral_centroid,\n",
+        " feature.spectral_bandwidth,\n",
+        " feature.spectral_rolloff]"
+      ],
+      "execution_count": 0,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "Zhb8lu6H5BOs",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "source": [
+        "fn_list_ii = [\n",
+        " feature.rmse,\n",
+        " feature.zero_crossing_rate\n",
+        "]"
+      ],
+      "execution_count": 0,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "mKQNsT7I5IiY",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "source": [
+        "def get_feature_vector(y,sr): \n",
+        "   feat_vect_i = [ np.mean(funct(y,sr)) for funct in fn_list_i]\n",
+        "   feat_vect_ii = [ np.mean(funct(y)) for funct in fn_list_ii] \n",
+        "   feature_vector = feat_vect_i + feat_vect_ii \n",
+        "   return feature_vector"
+      ],
+      "execution_count": 0,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "u0ivV52q5L3m",
+        "colab_type": "code",
+        "colab": {}
+      },
+      "source": [
+        "import csv\n",
+        "norm_output = 'ChainsawSample.csv'\n",
+        "\n",
+        "header =[\n",
+        " 'chroma_stft',\n",
+        " 'spectral_centroid',\n",
+        " 'spectral_bandwidth',\n",
+        " 'spectral_rolloff',\n",
+        " 'rmse',\n",
+        " 'zero_crossing_rate'\n",
+        "]\n",
+        "with open(norm_output,'+w') as f:\n",
+        " csv_writer = csv.writer(f, delimiter = ',')\n",
+        " csv_writer.writerow(header)\n",
+        " csv_writer.writerows(norm_audios_feat)"
+      ],
+      "execution_count": 0,
+      "outputs": []
+    }
+  ]
+}
